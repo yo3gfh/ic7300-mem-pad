@@ -540,6 +540,49 @@ void civ_trx_pwr_off ( Stream * ser )
     civ_send_epilogue ( ser );
 }
 
+void civ_change_freq ( const char * buf, Stream * ser )
+/*****************************************************************************/
+/* change operating freq.                                                    */
+/* you need to send freq directly as hex, i.e. 21 MHz would be 0x21          */
+/* each element (mhz, khz, hz and fraction) hold 2 bytes in the buffer,      */
+/* 8 bytes total. we take each 2 byte element and convert it to decimal      */
+{
+    byte mhz, khz, hz, f_hz;
+
+    mhz  = hex_to_byte ( buf + 6 );
+    khz  = hex_to_byte ( buf + 4 );
+    hz   = hex_to_byte ( buf + 2 );
+    f_hz = hex_to_byte ( buf );
+
+    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
+    ser->write ( CIV_CHG_FREQ );
+    ser->write ( f_hz );
+    ser->write ( hz );
+    ser->write ( khz );
+    ser->write ( mhz );
+    civ_send_epilogue ( ser );
+}
+
+void civ_set_vfo_a ( Stream * ser )
+/*****************************************************************************/
+/* set VFO A                                                                 */
+{
+    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
+    ser->write ( CIV_SET_VFO );
+    ser->write ( CIV_SET_VFO_A );
+    civ_send_epilogue ( ser );
+}
+
+void civ_set_vfo_b ( Stream * ser )
+/*****************************************************************************/
+/* set VFO B                                                                 */
+{
+    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
+    ser->write ( CIV_SET_VFO );
+    ser->write ( CIV_SET_VFO_B );
+    civ_send_epilogue ( ser );
+}
+
 void cw_keypad_event ( KeypadEvent key )
 /*****************************************************************************/
 /* event handler for the keypad, installed during setup()                    */
@@ -661,47 +704,4 @@ void aq_freq_digits ( char * buf, KeypadEvent key )
 
     buf[i] = key;                                 // copy to buffer
     freq_index--;                                 // next byte down
-}
-
-void civ_change_freq ( const char * buf, Stream * ser )
-/*****************************************************************************/
-/* change operating freq.                                                    */
-/* you need to send freq directly as hex, i.e. 21 MHz would be 0x21          */
-/* each element (mhz, khz, hz and fraction) hold 2 bytes in the buffer,      */
-/* 8 bytes total. we take each 2 byte element and convert it to decimal      */
-{
-    byte mhz, khz, hz, f_hz;
-
-    mhz  = hex_to_byte ( buf + 6 );
-    khz  = hex_to_byte ( buf + 4 );
-    hz   = hex_to_byte ( buf + 2 );
-    f_hz = hex_to_byte ( buf );
-
-    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
-    ser->write ( CIV_CHG_FREQ );
-    ser->write ( f_hz );
-    ser->write ( hz );
-    ser->write ( khz );
-    ser->write ( mhz );
-    civ_send_epilogue ( ser );
-}
-
-void civ_set_vfo_a ( Stream * ser )
-/*****************************************************************************/
-/* set VFO A                                                                 */
-{
-    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
-    ser->write ( CIV_SET_VFO );
-    ser->write ( CIV_SET_VFO_A );
-    civ_send_epilogue ( ser );
-}
-
-void civ_set_vfo_b ( Stream * ser )
-/*****************************************************************************/
-/* set VFO B                                                                 */
-{
-    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
-    ser->write ( CIV_SET_VFO );
-    ser->write ( CIV_SET_VFO_B );
-    civ_send_epilogue ( ser );
 }
