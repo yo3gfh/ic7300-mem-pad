@@ -242,7 +242,7 @@ void loop()
             }
         }
     }
-    // check for a keypad key event
+    // check for a keypad event
     key = cw_keypad.getKey();
 
 #ifdef DEBUG_KEYPAD
