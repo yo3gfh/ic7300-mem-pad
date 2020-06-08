@@ -98,8 +98,8 @@ void m_wait                ( unsigned long msec );
 // this is the serial port for CIV communication
 SoftwareSerial civ_port ( SERIAL_RX, SERIAL_TX );
 
-// for ascii_to_hex() and other
-const byte ascii_table[128] = {
+// for ascii_to_hex() and other; save it to flash mem, rather than RAM
+const byte ascii_table[128] PROGMEM = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -151,7 +151,7 @@ void setup()
 /****************************************************************************/
 /* initialization                                                           */
 {
-  // initialize serial ports
+    // initialize serial ports
     Serial.begin ( SER_SPEED );                      // USB serial (port 0)
     civ_port.begin ( SER_SPEED );                    // software serial port
     while ( !Serial ) { ; }                          // let it settle
@@ -216,6 +216,7 @@ void loop()
 {
     const char    *  p;
     byte             i           = 0;
+    byte             j           = 0;
     byte             len         = 0;
     byte             rx_byte     = 0;               // stores received byte
     char             buff        [MAX_BANK_SIZE+1]; // stores string
@@ -234,8 +235,11 @@ void loop()
             // a bit of sanity checks
             if ( ( isdigit ( buff[0] ) ) && ( buff[1] == 0x20 ) )
             {
+                j = ( byte )buff[0];
+                // wrap around
+                j %= 128;
                 // make index from ascii char
-                msg_ind = ascii_table[( byte )buff[0]] - 0x30;
+                msg_ind = pgm_read_byte ( &( ascii_table[j] ) ) - 0x30;
                 p = buff;
                 if ( ( msg_ind <= BANK_9 ) && ( msg_ind >= BANK_0 ) )
                 {
@@ -380,7 +384,7 @@ void list_mem_banks ( pmem_bank pbank, Stream * ser )
 
         if ( pbank[i].len != 0 )
         {
-            ser->print ( ( const String& ) ( pbank[i].msg ) );
+            ser->print ( pbank[i].msg );
             ser->print ( F(" - ") );
             ser->print ( pbank[i].len );
             ser->print ( F (" of 60 bytes") );
@@ -395,8 +399,10 @@ byte ascii_to_hex ( const char c )
 {
     byte idx;
 
-    idx = c % 128;                           // wrap around just in case :-)
-    return ascii_table[idx];                 // index the table by ASCII value
+    // wrap around just in case :-)
+    idx = c % 128;
+    // index the table by ASCII value
+    return pgm_read_byte ( &( ascii_table[idx] ) );
 }
 
 byte char_to_num ( const char c )
@@ -665,7 +671,7 @@ void handle_key_press ( KeypadEvent key, Stream * ser )
                 // wrap around :-)
                 i = key % 128;
                 // make an index from 0 to 9 directly from ascii value
-                msg_ind = ascii_table[i] - 0x30;
+                msg_ind = pgm_read_byte ( &( ascii_table[i] ) ) - 0x30;
                 if ( ( msg_ind <= BANK_9 ) && ( msg_ind >= BANK_0 ) )
                 {
                     // send the cw message
