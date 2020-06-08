@@ -150,7 +150,7 @@ void setup()
     m_wait ( 2 );
     civ_port.flush();
     cw_keypad.addEventListener ( cw_keypad_event );  // add keypad event handler
-    cw_keypad.setHoldTime ( PWR_OFF_HOLD_TIME );     // set the holdtime for the poweroff key
+    cw_keypad.setHoldTime ( KEY_HOLD_TIME );         // set the keypad holdtime
 
     // help banner
     Serial.println ( F("**************************************************************************") );
@@ -242,7 +242,7 @@ void loop()
             }
         }
     }
-    // check for a keypad event
+    // check for any keypad event
     key = cw_keypad.getKey();
 
 #ifdef DEBUG_KEYPAD
@@ -338,7 +338,7 @@ byte read_banks_from_eprom ( pmem_bank pbank, word nbytes )
   // no good signature found, exit
     if ( signature != EPROM_SIGNATURE ) { return 0; }
 
-    ee = 2;
+    ee = 2;                                       // skip signature
     for ( i = 0; i < nbytes; i++ )
     {
         *p++ = EEPROM.read ( ee++ );

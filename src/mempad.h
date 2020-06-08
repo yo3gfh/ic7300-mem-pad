@@ -38,7 +38,7 @@
 
 #define ROWS              ( byte ) 4
 #define COLS              ( byte ) 4
-#define PWR_OFF_HOLD_TIME          1500   // poweroff keypad button hold time
+#define KEY_HOLD_TIME              1500   // keypad key hold time
 
 // for pwr on, it's required to send a variable number of 0xFE, proportional to
 // the baud rate:
