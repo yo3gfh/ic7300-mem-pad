@@ -79,8 +79,7 @@ void civ_halt_cw           ( Stream * ser );
 void civ_trx_pwr_on        ( Stream * ser );
 void civ_trx_pwr_off       ( Stream * ser );
 void civ_change_freq       ( const char * buf, Stream * ser );
-void civ_set_vfo_a         ( Stream * ser );
-void civ_set_vfo_b         ( Stream * ser );
+void civ_set_vfo           ( const byte vfo, Stream * ser );
 
 void send_buf_cw           ( const char * buf, const byte len, Stream * ser );
 void send_mem_bank         ( pmem_bank pbank, const byte bank_idx, Stream * ser );
@@ -563,23 +562,13 @@ void civ_change_freq ( const char * buf, Stream * ser )
     civ_send_epilogue ( ser );
 }
 
-void civ_set_vfo_a ( Stream * ser )
+void civ_set_vfo ( const byte vfo, Stream * ser )
 /*****************************************************************************/
-/* set VFO A                                                                 */
+/* set VFO A/B                                                               */
 {
     civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
     ser->write ( CIV_SET_VFO );
-    ser->write ( CIV_SET_VFO_A );
-    civ_send_epilogue ( ser );
-}
-
-void civ_set_vfo_b ( Stream * ser )
-/*****************************************************************************/
-/* set VFO B                                                                 */
-{
-    civ_send_prologue ( TRX_ADDR, ARD_ADDR, ser );
-    ser->write ( CIV_SET_VFO );
-    ser->write ( CIV_SET_VFO_B );
+    ser->write ( vfo );
     civ_send_epilogue ( ser );
 }
 
@@ -628,11 +617,11 @@ void handle_key_press ( KeypadEvent key, Stream * ser )
             break;
 
         case 'A':
-            civ_set_vfo_a ( ser );
+            civ_set_vfo ( CIV_SET_VFO_A, ser ); // switch to VFO A
             break;
 
         case 'B':
-            civ_set_vfo_b ( ser );
+            civ_set_vfo ( CIV_SET_VFO_B, ser ); // switch to VFO B
             break;
 
         case 'D':
