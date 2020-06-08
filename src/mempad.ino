@@ -730,7 +730,7 @@ void handle_key_hold ( KeypadEvent key, Stream * ser )
     switch ( key )
     {
         case '#':
-            // power off our box after 1.5 sec. of key press
+            // power off our box after 0.8 sec. of key press
             civ_trx_pwr_off ( ser );
             break;
 
