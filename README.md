@@ -29,12 +29,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   To program the mem banks, use any terminal app (putty, teraterm, etc.) to connect
   to device.
 
-* Power on (`*` key) and power off (`#` key, hold for 1.5 sec.).
+* Power on (`*` key) and power off (`#` key, hold for 0.8 sec.).
 
-* Switch VFOs ( set VFO A with `A` key, set VFO B with `B` key ).
+* Switch VFOs ( set VFO A with `A` key, set VFO B with `B` key ). Hold `A` or `B`
+  keys (0.8 sec.) for VFO "preview" mode ( switch to VFO, but return to the
+  other on key release ).
 
-* Frequency input mode - hold `D` key for 1.5 sec. to enter this mode,
-  hold it again for 1.5 sec. to return to mem pad mode.
+* Frequency input mode - hold `D` key for 0.8 sec. to enter this mode,
+  hold it again for 0.8 sec. to return to mem pad mode.
   This mode allows for changing the operating frequency on the transceiver.
   Enter the desired freq. as 8 digits (mandatory), such as 03 51 02 03 (3510.203 kHz)
   or 10 10 12 12 (10101.212 kHz) followed by the `#` key.

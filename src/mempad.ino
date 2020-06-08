@@ -28,12 +28,14 @@
       To program the mem banks, use any terminal app (putty, teraterm, etc.) to connect
       to device.
 
-    - Power on ('*' key) and power off ('#' key, hold for 1.5 sec.).
+    - Power on ('*' key) and power off ('#' key, hold for 0.8 sec.).
 
-    - Switch VFOs ( set VFO A with 'A' key, set VFO B with 'B' key ).
+    - Switch VFOs ( set VFO A with 'A' key, set VFO B with 'B' key ). Hold 'A' or 'B'
+      keys (0.8 sec.) for VFO "preview" mode ( switch to VFO, but return to the
+      other on key release ).
 
-    - Frequency input mode - hold 'D' key for 1.5 sec. to enter this mode,
-      hold it again for 1.5 sec. to return to mem pad mode.
+    - Frequency input mode - hold 'D' key for 0.8 sec. to enter this mode,
+      hold it again for 0.8 sec. to return to mem pad mode.
       This mode allows for changing the operating frequency on the transceiver.
       Enter the desired freq. as 8 digits (mandatory), such as 03 51 02 03 (3510.203 kHz)
       or 10 10 12 12 (10101.212 kHz) followed by the '#' key.
@@ -68,6 +70,7 @@ void cw_keypad_event       ( KeypadEvent key );
 void process_keypad        ( KeyState state, KeypadEvent key, Stream * ser );
 void handle_key_press      ( KeypadEvent key, Stream * ser );
 void handle_key_hold       ( KeypadEvent key, Stream * ser );
+void handle_key_release    ( KeypadEvent key, Stream * ser );
 
 byte read_banks_from_eprom ( pmem_bank pbank, word nbytes );
 void write_banks_to_eprom  ( pmem_bank pbank, word nbytes );
@@ -96,7 +99,7 @@ void m_wait                ( unsigned long msec );
 SoftwareSerial civ_port ( SERIAL_RX, SERIAL_TX );
 
 // for ascii_to_hex() and other
-byte ascii_table[128] = {
+const byte ascii_table[128] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -138,6 +141,11 @@ char     freq_buf[FREQ_BUF_SIZE]      = {};
 byte     freq_index                   = FREQ_BUF_SIZE;
 // we're in mem pad mode by default
 bool     freq_mode                    = false;
+bool     hold_vfo                     = false;
+byte     crt_vfo                      = CIV_SET_VFO_A;
+// BUG: what if radio starts with VFO B selected? :-))
+// couldn't find how to CIV read current VFO (A of B)
+// in order to properly initialize crt_vfo
 
 void setup()
 /****************************************************************************/
@@ -167,15 +175,16 @@ void setup()
     Serial.println ( F("**************************************************************************") );
     Serial.println ( F("***             Keys '0' to '9': send associated memory bank           ***") );
     Serial.println ( F("***                 Key 'A', 'B': switch between VFO A/B               ***") );
+    Serial.println ( F("***                (hold 'A' or 'B' for VFO preview mode)              ***") );
     Serial.println ( F("***                   Key 'C': cancel current message                  ***") );
     Serial.println ( F("***                  Key '*': power on the transceiver                 ***") );
-    Serial.println ( F("***        Key '#': power off the transceiver (hold for 1.5 sec.)      ***") );
+    Serial.println ( F("***        Key '#': power off the transceiver (hold for 0.8 sec.)      ***") );
     Serial.println ( F("**************************************************************************") );
-    Serial.println ( F("***      KEYPAD FUNCTIONS (freq. input mode, hold 'D' for 1.5 sec.)    ***") );
+    Serial.println ( F("***      KEYPAD FUNCTIONS (freq. input mode, hold 'D' for 0.8 sec.)    ***") );
     Serial.println ( F("**************************************************************************") );
     Serial.println ( F("***     Keys '0' to '9': enter desired frequency, e.g. 3510.202 kHz    ***") );
     Serial.println ( F("***     would be 03 51 02 02 on the keypad, followed by the '#' key    ***") );
-    Serial.println ( F("***       Hold 'D' for 1.5 sec. again to return to CW mem pad mode     ***") );
+    Serial.println ( F("***       Hold 'D' for 0.8 sec. again to return to CW mem pad mode     ***") );
     Serial.println ( F("**************************************************************************") );
     Serial.println();
 
@@ -195,6 +204,11 @@ void setup()
     // list mem banks
     list_mem_banks ( messages, &Serial );
 }
+
+// save warnings state
+#pragma GCC diagnostic push
+// disable the "set but unused" warning for the "key" variable
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 
 void loop()
 /****************************************************************************/
@@ -266,6 +280,9 @@ void loop()
     }
 #endif
 }
+
+// restore warnings
+#pragma GCC diagnostic pop
 
 //
 // IMPLEMENTATION SECTION
@@ -589,17 +606,18 @@ void process_keypad ( KeyState state, KeypadEvent key, Stream * ser )
     switch ( state )
     {
         case PRESSED:
-            handle_key_press ( key, ser ); // process key press
+            handle_key_press ( key, ser );   // process key press
             break;
 
-        case RELEASED:                     // add code for key release
+        case RELEASED:
+            handle_key_release ( key, ser ); // process key release
             break;
 
         case HOLD:
-            handle_key_hold ( key, ser );  // process key hold, for poweroff
+            handle_key_hold ( key, ser );    // process key hold
             break;
 
-        case IDLE:                         // add code for idle :-)
+        case IDLE:                           // add code for idle :-)
             break;
     }
 }
@@ -663,10 +681,46 @@ void handle_key_press ( KeypadEvent key, Stream * ser )
     }
 }
 
+void handle_key_release ( KeypadEvent key, Stream * ser )
+/*****************************************************************************/
+/* what to do on key release                                                 */
+{
+    if ( key == NO_KEY ) { return; }
+
+    switch ( key )
+    {
+        case 'A':
+            if ( ( hold_vfo == true ) && ( crt_vfo == CIV_SET_VFO_B ) )
+            {
+                civ_set_vfo ( CIV_SET_VFO_B, ser );
+                hold_vfo = false;
+            }
+            else
+            {
+                crt_vfo = CIV_SET_VFO_A;
+            }
+            break;
+
+        case 'B':
+            if ( ( hold_vfo == true ) && ( crt_vfo == CIV_SET_VFO_A ) )
+            {
+                civ_set_vfo ( CIV_SET_VFO_A, ser );
+                hold_vfo = false;
+            }
+            else
+            {
+                crt_vfo = CIV_SET_VFO_B;
+            }
+            break;
+    }
+}
+
 void handle_key_hold ( KeypadEvent key, Stream * ser )
 /*****************************************************************************/
 /* what to do on keyhold (pressing a key for more than PWR_OFF_HOLD_TIME)    */
 {
+    if ( key == NO_KEY ) { return; }
+
     switch ( key )
     {
         case '#':
@@ -677,6 +731,12 @@ void handle_key_hold ( KeypadEvent key, Stream * ser )
         case 'D':
             // toggle frequency input mode
             freq_mode = !freq_mode;
+            break;
+
+        case 'A':
+        case 'B':
+            // we're holding a VFO key
+            hold_vfo = true;
             break;
     }
 }

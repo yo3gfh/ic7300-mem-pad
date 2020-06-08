@@ -1,5 +1,31 @@
+/*
+    Arduino CW memory pad for IC7300, v. 1.0
+    -----------------------------------------
+    Copyright (c) 2020 Adrian Petrila, YO3GFH
+    TNX for original idea by Adrian Florescu, YO3HJV
+
+    http://yo3hjv.blogspot.com/2020/04/cw-and-voice-memory-keyer-for-icom-ic.html
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    mempad.h - main header file
+*/
+
 #ifndef mempad_h
 #define mempad_h
+
+#include <Arduino.h>
 
 //#define DEBUG_KEYPAD
 //#define DEBUG_CIV
@@ -38,7 +64,7 @@
 
 #define ROWS              ( byte ) 4
 #define COLS              ( byte ) 4
-#define KEY_HOLD_TIME              1500   // keypad key hold time
+#define KEY_HOLD_TIME              800    // keypad key hold time
 
 // for pwr on, it's required to send a variable number of 0xFE, proportional to
 // the baud rate:
