@@ -48,3 +48,7 @@ It's taylored to my own needs, modify it to suit your own. I'm not a professiona
 so this isn't the best code you'll find on the web, you have been warned :-))
 
 All the bugs are guaranteed to be genuine, and are exclusively mine =)
+
+<img src=https://github.com/yo3gfh/ic7300-mem-pad/blob/master/connection-to-ic7300.PNG />
+<br>
+<img src=https://github.com/yo3gfh/ic7300-mem-pad/blob/master/ic-7300-cw-mempad.png />
