@@ -5,7 +5,7 @@
 Copyright (c) 2020 Adrian Petrila, YO3GFH<br>
 TNX for original idea by Adrian Florescu, YO3HJV
 
-http://yo3hjv.blogspot.com/2020/04/cw-and-voice-memory-keyer-for-icom-ic.html
+<http://yo3hjv.blogspot.com/2020/04/cw-and-voice-memory-keyer-for-icom-ic.html/>
 
 -----
 
