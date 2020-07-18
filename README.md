@@ -5,7 +5,7 @@
 Copyright (c) 2020 Adrian Petrila, YO3GFH<br>
 TNX for original idea by Adrian Florescu, YO3HJV
 
-<http://yo3hjv.blogspot.com/2020/04/cw-and-voice-memory-keyer-for-icom-ic.html/>
+<http://yo3hjv.blogspot.com/2020/04/cw-and-voice-memory-keyer-for-icom-ic.html>
 
 -----
 
@@ -53,6 +53,6 @@ so this isn't the best code you'll find on the web, you have been warned :-))
 
 All the bugs are guaranteed to be genuine, and are exclusively mine =)
 
-<img src=https://github.com/yo3gfh/ic7300-mem-pad/blob/master/connection-to-ic7300.PNG />
+![alt text](https://github.com/yo3gfh/ic7300-mem-pad/blob/master/connection-to-ic7300.PNG?raw=true)
 <br>
-<img src=https://github.com/yo3gfh/ic7300-mem-pad/blob/master/ic-7300-cw-mempad.png />
+![alt text](https://github.com/yo3gfh/ic7300-mem-pad/blob/master/ic-7300-cw-mempad.png?raw=true)
